@@ -15,8 +15,8 @@ var app = {
     const input = document.querySelector("#addCardModal input[name=list_id]");
     input.value = event.target.closest(".panel").getAttribute('data-list-id');
     document.getElementById('addCardModal').classList.add('is-active');
-    document.querySelector("#addCardModal input[name=title]").value = "";
-
+    // document.querySelector("#addCardModal input[name=title]").value = "";
+    
   },
   hideCardModal: () => {
     document.getElementById('addCardModal').classList.remove('is-active');
@@ -28,22 +28,25 @@ var app = {
     // ici on modifie le titre de la liste
     cloneTemplate.querySelector("h2").textContent = list.name;
     // ici on modifie l'id de la liste
-    cloneTemplate.querySelector(".panel").dataset.listId =list.id
+    cloneTemplate.querySelector(".panel").dataset.listId = list.id;
      // ajout de l'ecouteur du click sur le boutton + pour ajouter une carte
     cloneTemplate.querySelector("a.is-pulled-right").addEventListener("click", app.showAddCardModal)
     document.querySelector(".card-lists").append(cloneTemplate);
    
     
-    // gestion de la soumission du formulaire pour ajouter une carte
-     document.querySelector('#addCardModal form').addEventListener('submit', app.handleAddCardForm)
-   
+    
 
   },
   makeCardInDom: (card) => {
      const templateCard = document.getElementById("cardTemplate");
      const cloneTemplateCard = templateCard.content.cloneNode(true);
+     //changer le nom de la liste
      cloneTemplateCard.querySelector(".column").textContent = card.content;
-     cloneTemplateCard.querySelector(".box").dataset.cardId = card.id;
+     //changer la couleur de fond de la carte
+     const cardDom =  cloneTemplateCard.querySelector(".box")
+
+     cardDom.style.backgroundColor = card.color;
+     cardDom.dataset.cardId = card.id;
      document.querySelector(`.panel[data-list-id="${card.list_id}"] .panel-block`).append(cloneTemplateCard);
 
   },
@@ -74,16 +77,29 @@ var app = {
   handleAddListForm: async(event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
-    app.makeListInDom(formData);
+    // on envoie à l'API les infos du formulaire sous forme de FormData
+    const response = await fetch(`${app.base_url}/lists`, {
+      method: 'POST',
+      body: formData
+      
+    })
+    const list = await response.json();
+    app.makeListInDom(list);
     app.hideAddListModal();
 
   },
-  handleAddCardForm: (event) => {
+  handleAddCardForm: async(event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
-    const cardTitle = formData.get("title");
-    const listId = document.querySelector("#addCardModal input[name=list_id]").value;
-    app.makeCardInDom(cardTitle, listId);
+    // const listId = document.querySelector("#addCardModal input[name=list_id]").value;
+    const response = await fetch(`${app.base_url}/cards`, {
+      method: "POST",
+      body: formData
+    })
+    const card = await response.json();
+    app.makeCardInDom(card);
+    
+
     app.hideCardModal();
   
 
