@@ -29,8 +29,13 @@ var app = {
     cloneTemplate.querySelector("h2").textContent = list.name;
     // ici on modifie l'id de la liste
     cloneTemplate.querySelector(".panel").dataset.listId = list.id;
+    cloneTemplate.querySelector('input[name="list-id"]').value = list.id;
      // ajout de l'ecouteur du click sur le boutton + pour ajouter une carte
     cloneTemplate.querySelector("a.is-pulled-right").addEventListener("click", app.showAddCardModal)
+    // ajout de l'ecouteur du doubleClick sur le titre h2 de la liste
+    cloneTemplate.querySelector("h2").addEventListener("dblclick",app.showEditListForm);
+    // gestion de la soumission du formulaire pour l'édition d'une liste
+    cloneTemplate.querySelector('form').addEventListener("submit", app.handleEditlistForm)
     document.querySelector(".card-lists").append(cloneTemplate);
    
     
@@ -59,6 +64,8 @@ var app = {
       for ( const button of buttons ) {
         button.addEventListener('click', app.hideAddListModal);
       };
+
+
     // gestion de la soumission du formulaire pour ajouter une liste
     document.querySelector('#addListModal form').addEventListener('submit', app.handleAddListForm)
     // // gestion du click sur le boutton + d'une liste pour ajouter une carte
@@ -73,16 +80,21 @@ var app = {
      };
     // gestion de la soumission du formulaire pour ajouter une carte
      document.querySelector('#addCardModal form').addEventListener('submit', app.handleAddCardForm)
+    
+
   }, 
   handleAddListForm: async(event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
+   
     // on envoie à l'API les infos du formulaire sous forme de FormData
     const response = await fetch(`${app.base_url}/lists`, {
       method: 'POST',
-      body: formData
+      body: {
+        name: `${formData.list-id}`,
+      },
       
-    })
+    });
     const list = await response.json();
     app.makeListInDom(list);
     app.hideAddListModal();
@@ -102,6 +114,31 @@ var app = {
 
     app.hideCardModal();
   
+
+  },
+  showEditListForm: async(event) => {
+    // on cache le titre
+    event.target.classList.add("is-hidden");
+    // on affiche le formulaire d'édition
+    event.target.nextElementSibling.classList.remove('is-hidden');
+    
+  },
+  handleEditlistForm: async(event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const h2 = event.target.previousElementSibling
+    try {
+      await fetch(`${app.base_url}/lists/${formData.get('list-id')}`, {
+        method: "PATCH",
+        body:formData
+      });
+      h2.textContent = formData.get('name');
+    } catch (error) {
+      console.trace(error);
+      alert(`La liste n'a pas pu etre modifiée !`)
+    }
+    event.target.classList.add("is-hidden");
+    h2.classList.remove('is-hidden');
 
   },
   getListsFromAPI: async() => {
