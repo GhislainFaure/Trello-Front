@@ -31,9 +31,11 @@ var app = {
     cloneTemplate.querySelector(".panel").dataset.listId = list.id;
     cloneTemplate.querySelector('input[name="list-id"]').value = list.id;
      // ajout de l'ecouteur du click sur le boutton + pour ajouter une carte
-    cloneTemplate.querySelector("a.is-pulled-right").addEventListener("click", app.showAddCardModal)
+    cloneTemplate.querySelector("a.add-card-icon").addEventListener("click", app.showAddCardModal)
     // ajout de l'ecouteur du doubleClick sur le titre h2 de la liste
     cloneTemplate.querySelector("h2").addEventListener("dblclick",app.showEditListForm);
+    //ajout de l'ecouteur du click sur l'icone poubelle 
+    cloneTemplate.querySelector(".delete-list-icon").addEventListener("click", app.deleteList);
     // gestion de la soumission du formulaire pour l'édition d'une liste
     cloneTemplate.querySelector('form').addEventListener("submit", app.handleEditlistForm)
     document.querySelector(".card-lists").append(cloneTemplate);
@@ -185,7 +187,25 @@ var app = {
       console.error(error);
       alert("Impossible de suprimer la carte!");
     }
+  },
+  deleteList: async(event) => {
+    const listId = event.target.closest(".panel").dataset.listId;
+    // demander la confirmation à l'utilisateur
+    if(!confirm("Voulez vous vraiment supprimer cette liste")) return 
+    // il faut vérifier que la liste ne contient aucunes cartes avant de la supprimer
+    const cardsInDom = event.target.closest(".panel").querySelector(".box");
+    if(cardsInDom)  return alert("Impossible de supprimer cette liste car elle possède des cartes !");
   
+    try {
+      await fetch(`${app.base_url}/lists/${listId}`, {
+        method: "DELETE",
+      });
+      event.target.closest(".panel").remove();
+    } catch (error) {
+      console.error(error);
+      alert("Impossible de supprimer la liste");
+      
+    }
   },
   getListsFromAPI: async() => {
     try {
