@@ -52,6 +52,14 @@ var app = {
 
      cardDom.style.backgroundColor = card.color;
      cardDom.dataset.cardId = card.id;
+     // modifier l'id de la card du formulaire d'édition
+     cardDom.querySelector("input[name='card-id']").value = card.id;
+     // on place un ecouteur d'evenement sur le premier a de la div qui possède la class column
+     cardDom.querySelector(".edit-card-icon").addEventListener("click", app.showEditCardForm);
+     // on place un écouteur d'évenement sur le duxième a de la div qui possède la classe colum
+     cardDom.querySelector(".delete-card-icon").addEventListener("click", app.deleteCard);
+     // gestion de la soumission du formulaire pour éditer une carte
+     cardDom.querySelector("form").addEventListener("submit", app.handleEditCardForm)
      document.querySelector(`.panel[data-list-id="${card.list_id}"] .panel-block`).append(cloneTemplateCard);
 
   },
@@ -80,6 +88,7 @@ var app = {
      };
     // gestion de la soumission du formulaire pour ajouter une carte
      document.querySelector('#addCardModal form').addEventListener('submit', app.handleAddCardForm)
+    
     
 
   }, 
@@ -123,6 +132,10 @@ var app = {
     event.target.nextElementSibling.classList.remove('is-hidden');
     
   },
+  showEditCardForm: async(event) => {
+    event.target.closest(".columns").querySelector(".column").classList.add("is-hidden");
+    event.target.closest(".columns").querySelector("form").classList.remove("is-hidden");
+  },
   handleEditlistForm: async(event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -140,6 +153,39 @@ var app = {
     event.target.classList.add("is-hidden");
     h2.classList.remove('is-hidden');
 
+  },
+  handleEditCardForm: async(event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    try {
+      await fetch(`${app.base_url}/cards/${formData.get("card-id")}`, {
+        method: 'PATCH',
+        body: formData
+      })
+     
+      event.target.previousElementSibling.innerHTML = formData.get("content");
+  
+    } catch (error) {
+      console.error(error);
+      alert("Impossible de modifier la carte!")
+    }
+    event.target.previousElementSibling.classList.remove("is-hidden");
+    event.target.classList.add("is-hidden");
+    
+  
+  },
+  deleteCard: async(event) => {
+    const cardId = event.target.closest(".columns").querySelector("input[name='card-id']").value;
+    try {
+      await fetch(`${app.base_url}/cards/${cardId}`, {
+        method: "DELETE",
+      })
+      event.target.closest(".box").remove();
+    } catch (error) {
+      console.error(error);
+      alert("Impossible de suprimer la carte!");
+    }
+  
   },
   getListsFromAPI: async() => {
     try {
@@ -171,3 +217,6 @@ var app = {
 
 // on accroche un écouteur d'évènement sur le document : quand le chargement est terminé, on lance app.init
 document.addEventListener('DOMContentLoaded', app.init );
+
+
+
