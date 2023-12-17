@@ -101,9 +101,7 @@ var app = {
     // on envoie à l'API les infos du formulaire sous forme de FormData
     const response = await fetch(`${app.base_url}/lists`, {
       method: 'POST',
-      body: {
-        name: `${formData.list-id}`,
-      },
+      body: formData
       
     });
     const list = await response.json();
@@ -141,7 +139,8 @@ var app = {
   handleEditlistForm: async(event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
-    const h2 = event.target.previousElementSibling
+    if(!formData.get("name")) return alert("La liste doit avoir un nom !")
+    const h2 = event.target.previousElementSibling;
     try {
       await fetch(`${app.base_url}/lists/${formData.get('list-id')}`, {
         method: "PATCH",
@@ -159,6 +158,7 @@ var app = {
   handleEditCardForm: async(event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
+    if(!formData.get("content")) return alert("Le nom de la carte ne doit pas etre vide!");
     try {
       await fetch(`${app.base_url}/cards/${formData.get("card-id")}`, {
         method: 'PATCH',
@@ -166,6 +166,7 @@ var app = {
       })
      
       event.target.previousElementSibling.innerHTML = formData.get("content");
+      event.target.closest(".box").style.backgroundColor = formData.get("color");
   
     } catch (error) {
       console.error(error);

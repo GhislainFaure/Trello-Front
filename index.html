@@ -86,8 +86,13 @@
                                                     placeholder="Nom de la carte">
                                             </div>
                                             <div class="control">
+                                                <input type="color" class="input is-small" name="color" value="">                                 
+                                            </div>
+                                            <div class="control">
                                                 <button class="button is-small is-success">Valider</button>
                                             </div>
+                                            
+                                            
                                         </div>
                                     </form>
                                     <div class="column is-narrow">
@@ -157,12 +162,18 @@
                 </header>
                 <section class="modal-card-body">
                     <div class="field">
-                        <label class="label">titre</label>
+                        <label class="label">Nom</label>
                         <div class="control">
                             <input type="text" class="input" name="content" value="" placeholder="Titre de la carte">
                             <input type="hidden" class="input" name="list_id" value="" placeholder="">
                         </div>
-                    </div>
+                    </div>    
+                    <div class="field">
+                        <label class="label">Couleur</label>
+                        <div class="control">
+                            <input type="color" class="input" name="color" value="" placeholder="Couleur de la carte">
+                        </div>
+                    </div>                     
                 </section>
                 <footer class="modal-card-foot">
                     <button class="button">Save changes</button>
