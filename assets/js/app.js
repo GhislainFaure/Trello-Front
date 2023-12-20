@@ -38,10 +38,51 @@ var app = {
     cloneTemplate.querySelector(".delete-list-icon").addEventListener("click", app.deleteList);
     // gestion de la soumission du formulaire pour l'édition d'une liste
     cloneTemplate.querySelector('form').addEventListener("submit", app.handleEditlistForm)
+
+      // créer une instance de Sortable et insérer le container panel-block
+      const container = cloneTemplate.querySelector(".panel-block");
+      new Sortable(container, {
+       group: 'list',
+       draggable: '.box',
+       onEnd: app.onCardDraggable,
+      });
+ 
+    
     document.querySelector(".card-lists").append(cloneTemplate);
+  },
+  onCardDraggable: async function(event) {
+    // récuperer la liste d'origine
+    const oldList = event.from;
+    // récuperer la nvlle liste
+    const newList = event.to;
+    // récuperer toutes les cartes de la liste d'origine
+    let cards = oldList.querySelectorAll('.box');
+    await app.moveCards(cards);
+    cards = newList.querySelectorAll('.box');
+    await app.moveCards(cards);
+    
    
-    
-    
+  },
+  moveCards: async function(cards) {
+// boucler sur les cartes pour mettre a jour leur position coté API
+    cards.forEach(async (card, index) =>  {
+      const id = card.dataset.cardId;
+      const listId = card.closest('.panel').dataset.listId; 
+      const formData = new FormData();
+      formData.set("position", index);
+      formData.set("list_id", listId);
+      // faire le call API en PATCH pour modifier la position de la carte
+      try {    
+        await fetch(`${app.base_url}/cards/${id}`, {
+        method: 'PATCH', 
+        body: formData,
+      })
+        
+      } catch (error) {
+        console.error(error);
+        alert('impossible de déplacer cette carte');      
+      }
+    })
 
   },
   makeCardInDom: (card) => {
@@ -64,6 +105,7 @@ var app = {
      cardDom.querySelector("form").addEventListener("submit", app.handleEditCardForm)
      document.querySelector(`.panel[data-list-id="${card.list_id}"] .panel-block`).append(cloneTemplateCard);
 
+   
   },
   
   addListenersToActions: () => {
@@ -208,6 +250,7 @@ var app = {
       
     }
   },
+
   getListsFromAPI: async() => {
     try {
       const response = await fetch(`${app.base_url}/lists`);
