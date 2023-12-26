@@ -7,8 +7,12 @@ var app = {
      app.modal = document.getElementById('addListModal');
      app.modal.classList.add('is-active');  
   },
-  hideAddListModal: () => {
-      app.modal.classList.remove('is-active');
+  hideModal: () => {
+    const modals = document.querySelectorAll('.modal');
+    for (const modal of modals) {
+      modal.classList.remove('is-active');
+    }
+    
 
   },
   showAddCardModal: (event) => {
@@ -49,6 +53,70 @@ var app = {
  
     
     document.querySelector(".card-lists").append(cloneTemplate);
+  },
+  makeTagInDom: (tag) => {
+    // on crée un span en html
+    const span = document.createElement('span');
+    // on attache la class tag de Bulma au span
+    span.classList.add('tag');
+
+    // on modifie son texte avec le nom du tag
+    span.textContent = tag.name;
+    // on change la couleur du tag
+    span.style.backgroundColor = tag.color;
+    // on lui donne un data attribute id
+    span.dataset.tagId = tag.id;
+    // on attache un écouteur d'événement dblclick sur l'élement span pour dissocier le tag de la carte
+    span.addEventListener('dblclick', app.dissociateTagFromCard)
+
+    // on insère le span dans le DOM (dans la carte adéquate  )
+    document.querySelector(`.box[data-card-id="${tag.card_has_tag.card_id}"] .tags`).append(span);
+  },
+  associateTagToCard: async(event) => {
+    event.preventDefault();
+    // récuperer les informations du formulaire
+    const formData = new FormData(event.target);
+    const cardId = formData.get('card_id');
+    try {
+      const response = await fetch(`${app.base_url}/cards/${cardId}/tags`, {
+        method: 'POST',
+        body: formData
+      });
+      const card = await response.json();
+     // inserer le tag dans la bonne card
+     // card.tags => chopper le bon tag selon son identifiant
+      const tag = card.tags.find((tag) => tag.id == formData.get('tag_id'));
+     // insérer le tag dans la bonne card
+      app.makeTagInDom(tag);
+      app.hideModal();
+    } catch (error) {
+      console.error(error);
+      alert(`Impossible d'associer ce tag à cette carte`);
+    }
+  },
+  dissociateTagFromCard: async (event) => {
+    // récuperer l'id du tag 
+    const tagId = event.target.dataset.tagId;
+    // récuperer l'id de la carte
+    const cardId = event.target.closest('.box').dataset.cardId;
+    // "/cards/:cardId/tags/:tagId"
+    // faire un call API en DELETE
+    // const formData = new FormData();
+    // formData.set('tag_id'= tagId)
+
+    try {
+     await fetch(`${app.base_url}/cards/${cardId}/tags/${tagId}`, {
+        method: 'DELETE',
+      });
+      event.target.remove();
+
+    } catch (error) {
+      console.error(error);
+      alert("Impossible de dissocier le tag de la carte ! ")
+      
+    }
+
+   
   },
   onCardDraggable: async function(event) {
     // récuperer la liste d'origine
@@ -98,8 +166,10 @@ var app = {
      // modifier l'id de la card du formulaire d'édition
      cardDom.querySelector("input[name='card-id']").value = card.id;
      // on place un ecouteur d'evenement sur le premier a de la div qui possède la class column
+     cardDom.querySelector(".add-tag-icon").addEventListener("click", app.showAddTagModal);
+     // on place un écouteur d'évenement sur le deuxième a de la div qui possède la classe colum
      cardDom.querySelector(".edit-card-icon").addEventListener("click", app.showEditCardForm);
-     // on place un écouteur d'évenement sur le duxième a de la div qui possède la classe colum
+     // on place un écouteur d'évenement sur le troisième a de la div qui possède la classe colum
      cardDom.querySelector(".delete-card-icon").addEventListener("click", app.deleteCard);
      // gestion de la soumission du formulaire pour éditer une carte
      cardDom.querySelector("form").addEventListener("submit", app.handleEditCardForm)
@@ -114,7 +184,7 @@ var app = {
     // gestion du click sur les bouton pour fermer la modal 
     const buttons = document.querySelectorAll(".close");
       for ( const button of buttons ) {
-        button.addEventListener('click', app.hideAddListModal);
+        button.addEventListener('click', app.hideModal);
       };
 
 
@@ -133,9 +203,37 @@ var app = {
     // gestion de la soumission du formulaire pour ajouter une carte
      document.querySelector('#addCardModal form').addEventListener('submit', app.handleAddCardForm)
     
+     // gestion de la soumission du formulaire pour ajouter un tag à une carte
+     document.querySelector('#addTagModal form').addEventListener('submit', app.associateTagToCard);
+    
     
 
   }, 
+  fillSelectTagModal: async() => {
+    // faire un call API en Get pour récuperer tous les tags
+    try {
+      const response = await fetch(`${app.base_url}/tags`);
+      const tags = await response.json();
+
+    // remplir le select de la modale Tag avec les tags
+    const select = document.querySelector('select');
+    for (const tag of tags ) {
+     const option = document.createElement('option');
+     // changer le texte de la balise option
+     option.textContent = tag.name
+     // changer la valeur de la balise option
+     option.value = tag.id;
+     select.append(option);
+    }
+      
+    } catch (error) {
+      console.trace(error);
+      alert('Impossible de récuperer les tags! ')
+      
+    }
+    
+
+  },
   handleAddListForm: async(event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -148,7 +246,7 @@ var app = {
     });
     const list = await response.json();
     app.makeListInDom(list);
-    app.hideAddListModal();
+    app.hideModal();
 
   },
   handleAddCardForm: async(event) => {
@@ -174,10 +272,16 @@ var app = {
     event.target.nextElementSibling.classList.remove('is-hidden');
     
   },
-  showEditCardForm: async(event) => {
+  showEditCardForm: (event) => {
     event.target.closest(".columns").querySelector(".column").classList.add("is-hidden");
     event.target.closest(".columns").querySelector("form").classList.remove("is-hidden");
   },
+  showAddTagModal: (event) => {
+    // modifier card_id de l'input caché du form dans le addTagmodal après avoir récuperer le data-card_id dans la bonne carte
+    const cardId = event.target.closest('.box').dataset.cardId;
+    document.querySelector('#addTagModal input[type="hidden"]').setAttribute('value', cardId);
+    document.querySelector('#addTagModal').classList.add('is-active');
+  }, 
   handleEditlistForm: async(event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -254,15 +358,16 @@ var app = {
   getListsFromAPI: async() => {
     try {
       const response = await fetch(`${app.base_url}/lists`);
-      console.log(response);
       const lists = await response.json();
       for(const list of lists ) {
         app.makeListInDom(list);
         for(const card of list.cards) {
           app.makeCardInDom(card);
+          for(const tag of card.tags) {
+            app.makeTagInDom(tag);
+          }
         }
         }
-      console.log(lists);
       
     } catch (error) {
       console.error(error);
@@ -273,6 +378,7 @@ var app = {
   init: function () {
     app.addListenersToActions();
     app.getListsFromAPI();
+    app.fillSelectTagModal();
     
   },
 

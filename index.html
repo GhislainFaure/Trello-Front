@@ -90,12 +90,15 @@
                                             </div>
                                             <div class="control">
                                                 <button class="button is-small is-success">Valider</button>
-                                            </div>
-                                            
-                                            
+                                            </div>                     
                                         </div>
                                     </form>
                                     <div class="column is-narrow">
+                                        <a href="#" class="add-tag-icon">
+                                            <span class="icon is-small has-text-primary">
+                                                <i class="fas fa-tag"></i>
+                                            </span>
+                                        </a>
                                         <a href="#" class="edit-card-icon">
                                             <span class="icon is-small has-text-primary">
                                                 <i class="fas fa-pencil-alt"></i>
@@ -107,6 +110,11 @@
                                             </span>
                                         </a>
                                     </div>
+                                
+                                </div>
+                                <div class="columns">
+                                    <div class="column tags">
+                                </div>      
                                 </div>
                             </div>
                          </template>
@@ -177,6 +185,32 @@
                 </section>
                 <footer class="modal-card-foot">
                     <button class="button">Save changes</button>
+                    <button class="button close" type="button">Cancel</button>
+                </footer>
+            </form>
+        </div>
+    </div>
+    <div class="modal" id="addTagModal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <form action="" method="POST">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Ajouter un tag</p>
+                    <button class="delete close" type="button" aria-label="close"></button>
+                </header>
+                <section class="modal-card-body">
+                    <div class="field">
+                        <label class="label">Tag</label>
+                        <div class="control">
+                            <select name="tag_id" >
+
+                            </select>
+                            <input type="hidden" name="card_id" value="">
+                        </div>
+                    </div>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button">Ajouter le tag à la carte</button>
                     <button class="button close" type="button">Cancel</button>
                 </footer>
             </form>
