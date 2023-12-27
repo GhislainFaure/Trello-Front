@@ -1,5 +1,5 @@
 const utilsModule = require("./utilsModule");
-const cardModule = require("./utilsModule");
+const cardModule = require("./cardModule");
 
 const listModule = {
   showAddListModal: () => {
