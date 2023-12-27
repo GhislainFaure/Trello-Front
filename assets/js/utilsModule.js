@@ -7,3 +7,5 @@ const utilsModule = {
     }
   },
 };
+
+module.exports = utilsModule;

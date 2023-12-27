@@ -1,3 +1,5 @@
+const tagModule = require("./tagModule");
+const utilsModule = require("./utilsModule");
 const cardModule = {
   showAddCardModal: (event) => {
     const input = document.querySelector("#addCardModal input[name=list_id]");
@@ -130,3 +132,5 @@ const cardModule = {
     document.getElementById("addCardModal").classList.remove("is-active");
   },
 };
+
+module.exports = cardModule;

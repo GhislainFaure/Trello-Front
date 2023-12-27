@@ -1,3 +1,6 @@
+const utilsModule = require("./utilsModule");
+const cardModule = require("./utilsModule");
+
 const listModule = {
   showAddListModal: () => {
     listModule.modal = document.getElementById("addListModal");
@@ -97,3 +100,5 @@ const listModule = {
     }
   },
 };
+
+module.exports = listModule;

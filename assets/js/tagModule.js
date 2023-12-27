@@ -1,3 +1,5 @@
+const utilsModule = require("./utilsModule");
+
 const tagModule = {
   fillSelectTagModal: async () => {
     // faire un call API en Get pour récuperer tous les tags
@@ -94,3 +96,5 @@ const tagModule = {
     }
   },
 };
+
+module.exports = tagModule;

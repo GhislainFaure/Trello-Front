@@ -1,3 +1,8 @@
+const cardModule = require("./cardModule");
+const listModule = require("./listModule");
+const tagModule = require("./tagModule");
+const utilsModule = require("./utilsModule");
+
 // on objet qui contient des fonctions
 var app = {
   addListenersToActions: () => {

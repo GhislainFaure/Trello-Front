@@ -1,0 +1,26 @@
+{
+  "dependencies": {
+    "browserify": "^17.0.0",
+    "tinyify": "^4.0.0"
+  },
+  "name": "s07e01-atelier-okanban-front-ghislainfaure",
+  "description": "Pour ce projet, nous n'allons pas utiliser de serveur !",
+  "version": "1.0.0",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx browserify -e assets/js/app.js -o assets/js/bundle.min.js -p tinyify"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/O-clock-Zagreus/S07E01-atelier-oKanban-front-GhislainFaure.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/O-clock-Zagreus/S07E01-atelier-oKanban-front-GhislainFaure/issues"
+  },
+  "homepage": "https://github.com/O-clock-Zagreus/S07E01-atelier-oKanban-front-GhislainFaure#readme"
+}
